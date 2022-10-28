@@ -65,5 +65,65 @@ namespace SQLiDemo.Pages
                 return false;
             }
         }
+
+        protected bool CzyDobryLoginHasloParametr(string login, string haslo)
+        {
+            try
+            {
+                SqlConnection cnUsers = new SqlConnection(@"Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=UsersSQL;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False");
+
+                SqlParameter parLogin = new SqlParameter("Login", login);
+                SqlParameter parHaslo = new SqlParameter("Haslo", haslo);
+
+                SqlCommand sSelect = new SqlCommand("SELECT * FROM Uzytkownicy WHERE Login=@Login AND Haslo=@Haslo", cnUsers);
+
+                sSelect.Parameters.Add(parLogin);
+                sSelect.Parameters.Add(parHaslo);
+
+                SqlDataAdapter daUsers = new SqlDataAdapter(sSelect);
+                DataSet dsUsers = new DataSet();
+                daUsers.Fill(dsUsers);
+
+                return (dsUsers.Tables[0].Rows.Count > 0);
+            }
+            catch
+            {
+                return false;
+            }
+
+        }
+
+        bool CzyDobryLoginHasloLinq(string sUser, string sHaslo)
+        {
+            try
+            {
+
+
+                UsersSQLContext dbContext = new UsersSQLContext();
+
+
+                var wynik1 = dbContext.Uzytkownicies.FirstOrDefault(u => u.Login.Equals(sUser) && u.Haslo.Equals(sHaslo));
+                return wynik1 != null;
+
+                var wynik = from l in dbContext.Uzytkownicies
+                            where (l.Login == sUser) && (l.Haslo == sHaslo)
+                            select l.Login;
+
+
+                if (wynik.Count() > 0)
+                    return true;
+                else
+                    return false;
+
+            }
+            catch
+            {
+                return false;
+            }
+        }
     }
+
+
 }
+
+
